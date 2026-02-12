@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import dj_database_url
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -103,6 +104,9 @@ DATABASES = {
         'PORT':os.getenv('DATABASE_PORT'),
     }
 }
+
+DATABASES["default"] = dj_database_url.parse("postgresql://nawapuspanjali_render_user:n50yGsU6s4z0tr8NRwd0EMV0C0qAEj7D@dpg-d66q57bnv86c73d8ldo0-a.oregon-postgres.render.com/nawapuspanjali_render")
+
 
 
 # Password validation
