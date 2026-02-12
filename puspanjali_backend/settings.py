@@ -31,7 +31,7 @@ if os.path.exists(ENV_FILE):
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 def get_list(env_var):
     return os.getenv(env_var, "").split(",")
