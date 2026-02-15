@@ -5,20 +5,25 @@ from .models import *
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
     model = Brand
-    list_display = ['name','is_active']
+    list_display = ['name','display_order','is_active']
     readonly_fields = ['slug']
 
 @admin.register(NotebookType)
 class NotebookTypeAdmin(admin.ModelAdmin):
     model = NotebookType
-    list_display = ['name',]
+    list_display = ['name','display_order']
     readonly_fields = ['slug']
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
     model = Size
-    list_display = ['name','slug','display_order']
+    list_display = ['name', 'dimensions', 'slug', 'display_order']
     readonly_fields = ['slug']
+
+    def dimensions(self, obj):
+        return obj.dimensions
+    dimensions.short_description = 'Dimensions'
+
 
 @admin.register(Ruling)
 class RulingAdmin(admin.ModelAdmin):
@@ -30,8 +35,8 @@ class NotebookVariantInline(admin.TabularInline):
     model = NotebookVariant
     extra = 1
     fields = [
-        'size', 'ruling', 'no_of_pages', 'price_per_dozen',
-        'front_cover', 'back_cover', 'is_active'
+        'size', 'ruling', 'price_per_unit',
+        'is_active'
     ]
     show_change_link = True
 
@@ -54,6 +59,10 @@ class NotebookAdmin(admin.ModelAdmin):
             'fields': ('base_description',),
             'description': 'General description that applies to all variants of this notebook'
         }),
+        ('Image',{
+            'fields':('image',),
+            'description': 'General image for notebook'
+        }),
         ('Status', {
             'fields': ('is_active',)
         }),
@@ -72,7 +81,7 @@ class NotebookAdmin(admin.ModelAdmin):
 class NotebookVariantAdmin(admin.ModelAdmin):
     list_display = [
         'display_name', 'slug', 'notebook', 'size', 'ruling',
-        'no_of_pages', 'price_per_dozen', 'is_active'
+        'price_per_unit', 'is_active'
     ]
     list_filter = [
         'notebook__brand', 'notebook__notebook_type',
@@ -87,15 +96,11 @@ class NotebookVariantAdmin(admin.ModelAdmin):
             'fields': ('notebook',)
         }),
         ('Variant Specification', {
-            'fields': ('size', 'slug', 'ruling', 'no_of_pages')
+            'fields': ('size', 'slug', 'ruling', 'gsm')
         }),
         ('Pricing', {
-            'fields': ('price_per_dozen',),
-            'description': 'Price per unit is automatically calculated'
-        }),
-        ('Images', {
-            'fields': ('front_cover', 'back_cover'),
-            'description': 'Upload variant-specific cover images (different sizes may have different covers)'
+            'fields': ('price_per_unit',),
+            'description': 'Price per unit'
         }),
         ('Description', {
             'fields': ('variant_description', 'full_description'),
@@ -114,6 +119,6 @@ class NotebookVariantAdmin(admin.ModelAdmin):
         return obj.display_name
     display_name.short_description = 'Full Name'
     
-    def price_per_unit(self, obj):
-        return f"Rs. {obj.price_per_unit:.2f}"
-    price_per_unit.short_description = 'Price Per Unit'
+    # def price_per_unit(self, obj):
+    #     return f"Rs. {obj.price_per_unit:.2f}"
+    # price_per_unit.short_description = 'Price Per Unit'

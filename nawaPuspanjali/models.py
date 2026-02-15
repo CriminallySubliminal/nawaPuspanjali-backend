@@ -46,11 +46,12 @@ class Brand(SlugMixin, models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default = True)
+    display_order = models.PositiveIntegerField(default=0)
 
     slug_source = 'name'
     
     class Meta:
-        ordering = ['name']
+        ordering = ['display_order','name']
     
     def __str__(self):
         return self.name
@@ -59,19 +60,26 @@ class Brand(SlugMixin, models.Model):
 class NotebookType(SlugMixin, models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+    display_order = models.PositiveIntegerField(default=0)
 
     slug_source = 'name'
 
     class Meta:
-        ordering = ['name']
+        ordering = ['display_order','name']
     
     def __str__(self):
         return self.name
-
+    
 class Size(SlugMixin, models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    display_order = models.IntegerField(default = 0)
 
+    choices=[('mm', 'Millimeters'), ('cm', 'Centimeters'), ('in', 'Inches')]
+
+    name = models.CharField(max_length=50, unique=True)
+    width = models.FloatField(default=0.0)
+    height = models.FloatField(default=0.0)
+    unit = models.CharField(max_length=10, choices=choices, default='mm')
+    display_order = models.IntegerField(default = 0)
+    
     slug_source =  'name'
 
     class Meta:
@@ -79,6 +87,11 @@ class Size(SlugMixin, models.Model):
     
     def __str__(self):
         return self.name
+    
+    @property
+    def dimensions(self):
+        return f'{self.width} x {self.height} {self.unit}'
+
     
 class Ruling(SlugMixin, models.Model):
     name = models.CharField(max_length = 100, unique = True)
@@ -105,6 +118,7 @@ class Notebook(SlugMixin, models.Model):
     name = models.CharField(max_length=255)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='notebooks')
     notebook_type = models.ForeignKey(NotebookType, on_delete=models.CASCADE, related_name='notebooks')
+    image = models.ImageField(upload_to='notebooks/images')
     
     # General description (common to all variants)
     base_description = models.TextField(blank=True, help_text="General description for all variants")
@@ -165,26 +179,14 @@ class NotebookVariant( SlugMixin, models.Model):
         on_delete=models.CASCADE, 
         related_name='notebook_variants'
     )
+    gsm = models.PositiveIntegerField(default=0)
     
     # Variant-specific details
-    no_of_pages = models.PositiveIntegerField()
-    price_per_dozen = models.DecimalField(
+    
+    price_per_unit = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
         validators=[MinValueValidator(Decimal('0.01'))]
-    )
-    
-    # Variant-specific images
-    front_cover = models.ImageField(
-        upload_to='notebooks/covers/front',
-        blank=True,
-        null=True,
-        help_text="Cover image for this specific size/ruling"
-    )
-    back_cover = models.ImageField(
-        upload_to='notebooks/covers/back',
-        blank=True,
-        null=True
     )
     
     # Variant-specific description (optional)

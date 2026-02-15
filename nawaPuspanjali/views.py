@@ -18,7 +18,7 @@ class NotebookVariantViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = NotebookVariantFilter
     search_fields = ['notebook__name', 'notebook__brand__name']
-    ordering_fields = ['price_per_dozen', 'no_of_pages', 'notebook__name']
+    ordering_fields = ['price_per_unit', 'notebook__name']
     ordering = ['notebook__brand__name', 'notebook__name', 'size__display_order']
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
