@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from decimal import Decimal
 from django.core.validators import MinValueValidator
+from cloudinary.models import CloudinaryField
 import string
 import random
 
@@ -118,7 +119,15 @@ class Notebook(SlugMixin, models.Model):
     name = models.CharField(max_length=255)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='notebooks')
     notebook_type = models.ForeignKey(NotebookType, on_delete=models.CASCADE, related_name='notebooks')
-    image = models.ImageField(upload_to='notebooks/images')
+    image = CloudinaryField(
+        folder='notebooks/images',
+        transformation=[
+            {
+                'quality': 85,
+                'fetch_format': 'auto',
+            },
+        ]
+    )
     
     # General description (common to all variants)
     base_description = models.TextField(blank=True, help_text="General description for all variants")

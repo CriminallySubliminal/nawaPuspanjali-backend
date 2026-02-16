@@ -1,6 +1,7 @@
 # serializers.py
 from rest_framework import serializers
 from .models import *
+from cloudinary.utils import cloudinary_url
 
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,6 +47,7 @@ class NotebookListSerializer(serializers.ModelSerializer):
     variants = NotebookVariantListSerializer(many=True, read_only=True)
     available_sizes = SizeSerializer(many=True, read_only=True)
     available_rulings = RulingSerializer(many=True, read_only=True)
+    image = serializers.SerializerMethodField()
     
     class Meta:
         model = Notebook
@@ -55,6 +57,10 @@ class NotebookListSerializer(serializers.ModelSerializer):
             'variants', 'available_sizes', 'available_rulings',
             'created_at', 'updated_at'
         ]
+
+    def get_image(self,obj):
+        return obj.image.url if obj.image else None
+
 
 
 class NotebookVariantDetailSerializer(serializers.ModelSerializer):
@@ -78,6 +84,7 @@ class NotebookDetailSerializer(serializers.ModelSerializer):
     brand = BrandSerializer(read_only=True)
     notebook_type = NotebookTypeSerializer(read_only=True)
     variants = NotebookVariantDetailSerializer(many=True, read_only=True)
+    image = serializers.SerializerMethodField()
     
     class Meta:
         model = Notebook
@@ -90,3 +97,6 @@ class NotebookDetailSerializer(serializers.ModelSerializer):
             'is_active',
             'created_at', 'updated_at'
         ]
+    
+    def get_image(self,obj):
+        return obj.image.url if obj.image else None
