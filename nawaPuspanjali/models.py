@@ -45,6 +45,7 @@ class SlugMixin(models.Model):
 
 class Brand(SlugMixin, models.Model):
     name = models.CharField(max_length=50, unique=True)
+    paper = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default = True)
     display_order = models.PositiveIntegerField(default=0)
